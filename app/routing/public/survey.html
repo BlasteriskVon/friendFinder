@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <title>Friend Addition!</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="jumbotron">
+                <h1>Friend Finder: Survey Page</h1>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><strong>Fill Out the Survey to Add a New Friend!</strong></h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" role="form" id="surveyForms"> 
+                                <div class="form-group">
+                                        <label for="friendName">What is your name?</label>
+                                        <input type="text" class="form-control" id="friendName">
+                                </div>
+                                <div class="form-group">
+                                        <label for="picName">Please enter a picture URL!</label>
+                                        <input type="text" class="form-control" id="picName">
+                                </div>
+                                <p>Please answer the following questions!</p>
+                            </form>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-primary btn-md" id="addFriend">Submit!</button>
+                            </div>
+                        </div>
+                        <div id="matchedFriend"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="/">Home Page!</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/api/friends">Friends Page (JSON version)!</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    var questionNumber = 0;
+        function addSurveyQuestion(question){
+            var newQuestion = $("<div class='form-group'>" +
+                "<p>" + question + "</p>" +
+                "<input type='radio' name='" + questionNumber + "' value='1'>Strongly Disagree<br/>" + 
+                "<input type='radio' name='" + questionNumber + "' value='2'>Disagree<br/>" +
+                "<input type='radio' name='" + questionNumber + "' value='3'>Neutral<br/>" +
+                "<input type='radio' name='" + questionNumber + "' value='4'>Agree<br/>" +
+                "<input type='radio' name='" + questionNumber + "' value='5'>Strongly Agree<br/>" +
+                "</div>");
+            $("#surveyForms").append(newQuestion);
+            questionNumber++;
+        }
+        addSurveyQuestion("Dogs are superior to cats.");
+        addSurveyQuestion("The needs of the many outweigh the needs of the few.");
+        addSurveyQuestion("When I feel sad, I motivate myself by thinking of how happy I will be in the future.");
+        addSurveyQuestion("I push people away and resent them for leaving.");
+        addSurveyQuestion("Financial security is a higher priority than a sense of fulfillment.");
+        addSurveyQuestion("True heroism involves keeping peace over destroying evil.");
+        addSurveyQuestion("A person's personality can be linked to their favorite color.");
+        addSurveyQuestion("All Might is a better hero than Saitama.");
+        addSurveyQuestion("Using JavaScript to build your entire HTML page results in your actual HTML skills deteriorating.");
+        addSurveyQuestion("Kenny Loggins wouldn't be nearly as popular if not for <i>Top Gun</i> and <i>Archer</i>.");
+        $("#addFriend").on("click", function(event) {
+            event.preventDefault();
+            var scoreArray = [];
+            var radiosArray = document.getElementsByTagName("input");
+            var scoreArrayIndex = 0;
+            for(var i = 0;i < radiosArray.length;i++){
+                if(radiosArray[i].type === "radio" && radiosArray[i].checked){
+                    scoreArray[scoreArrayIndex] = parseInt(radiosArray[i].value);
+                    scoreArrayIndex++;
+                }
+            }
+            var picName = $("#picName").val();
+            if(picName===""){
+                picName = "https://images-na.ssl-images-amazon.com/images/I/51zLZbEVSTL._SL1200_.jpg";
+            }
+            var newFriend = {
+                name: $("#friendName").val().trim(),
+                photo: picName,
+                scores: scoreArray
+            }
+
+            $.post("/api/friends", newFriend, function(data){
+                var friendDiv = $("<div class='col-md-4'>" +
+                        "<h3> Your best friend match is " + data.name + "!!!</h3>" +
+                        "<img style='width:33%; height:auto' src='" + data.photo + "' alt='image-of-friend'" +
+                        "</div>");
+                    $("#matchedFriend").append(friendDiv);
+                for(var i = 0;i < radiosArray.length;i++){
+                    if(radiosArray[i].type === "radio"){
+                        radiosArray[i].checked = false;
+                    } else {
+                        $(radiosArray[i]).val("");
+                    }
+                }
+            });
+
+        });
+    </script>
+</html>

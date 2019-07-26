@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <title>All of the Friends!</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="jumbotron">
+                <h1>Friend Finder: Home Page</h1>
+            </div>
+            <div class="jumbotron row" id="friendList"></div>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="/survey">Survey Page!</a>
+                </div>
+                <div class="col-md-4">
+                    <a href="/api/friends">Friends Page (JSON version)!</a>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $.get("/api/friends", function(data) {
+            console.log(data);
+            if(data) {
+                for(var i = 0;i < data.length;i++){
+                    var friendDiv = $("<div class='col-md-4'>" +
+                        "<h3>" + data[i].name + "</h3>" +
+                        "<img style='width:33%; height:auto' src='" + data[i].photo + "' alt='image-of-friend'" +
+                        "</div>");
+                    $("#friendList").append(friendDiv);
+                }
+            }
+        })
+    </script>
+</html>
